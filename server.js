@@ -1,45 +1,37 @@
-require('dotenv').config();
-const express = require('express');
-const admin = require('firebase-admin');
+const express = require("express");
+const cors = require("cors");
 
 const app = express();
-app.use(express.json());
+const PORT = process.env.PORT || 3000;
 
-// Initialize Firebase using Environment Variables
-admin.initializeApp({
-  credential: admin.credential.cert({
-    type: "service_account",
-    project_id: process.env.FIREBASE_PROJECT_ID,
-    private_key: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'),
-    client_email: process.env.FIREBASE_CLIENT_EMAIL,
-  }),
+// ✅ Enable CORS for all origins (or restrict it to Neocities)
+app.use(cors({
+    origin: "*", // Change to "https://yourusername.neocities.org" for security
+    methods: ["GET"],
+    allowedHeaders: ["Content-Type"]
+}));
+
+// ✅ Sample MSP Data
+const mspData = [
+    { flower: "Jasmine", year: "2019-2020", msp: 6000 },
+    { flower: "Jasmine", year: "2020-2021", msp: 6500 },
+    { flower: "Jasmine", year: "2021-2022", msp: 7000 },
+    { flower: "Jasmine", year: "2022-2023", msp: 7500 },
+    { flower: "Jasmine", year: "2023-2024", msp: 8000 },
+
+    { flower: "Marigold", year: "2019-2020", msp: 5500 },
+    { flower: "Marigold", year: "2020-2021", msp: 6000 },
+    { flower: "Marigold", year: "2021-2022", msp: 6500 },
+    { flower: "Marigold", year: "2022-2023", msp: 7000 },
+    { flower: "Marigold", year: "2023-2024", msp: 7500 }
+];
+
+// ✅ API Endpoint to Fetch MSP Data
+app.get("/msp-data", (req, res) => {
+    res.json(mspData);
 });
 
-const db = admin.firestore();
-
-// ✅ API Route - Check Server Status
-app.get("/", (req, res) => {
-  res.send("MSP Backend is Running!");
-});
-
-// ✅ API Route - Fetch Data from Firestore
-app.get("/", async (req, res) => {
-  try {
-    const snapshot = await db.collection("msp_data").get();
-    let data = [];
-    
-    snapshot.forEach(doc => {
-      data.push({ id: doc.id, ...doc.data() });
-    });
-
-    res.json(data);
-  } catch (error) {
-    console.error("Error fetching data:", error);
-    res.status(500).json({ error: "Failed to fetch data" });
-  }
-});
-
-const PORT = process.env.PORT || 4000;
+// ✅ Start Server
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+    console.log(Server running on port ${PORT});
 });
