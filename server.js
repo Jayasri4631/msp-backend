@@ -19,7 +19,7 @@ app.use(express.json()); // To parse JSON data
 // API to fetch data from Firestore
 app.get("/", async (req, res) => {
     try {
-        const snapshot = await db.collection("msp").get();
+        const snapshot = await db.collection("flower_msp").get();
         
         if (snapshot.empty) {
             return res.status(404).json({ error: "No data found" });
