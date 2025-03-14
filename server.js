@@ -1,14 +1,16 @@
 const express = require("express");
 const admin = require("firebase-admin");
 const cors = require("cors");
-const serviceAccount = require("./serviceAccountKey.json");
+const serviceAccount = JSON.parse(process.env.GOOGLE_APPLICATION_CREDENTIALS);
+
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Initialize Firebase Admin SDK
 admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount)
+  credential: admin.credential.cert(serviceAccount),
+  databaseURL: "https://msp-prediction.firebaseio.com"
 });
 
 const db = admin.firestore();
