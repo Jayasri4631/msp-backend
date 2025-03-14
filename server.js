@@ -1,37 +1,45 @@
+require('dotenv').config();
 const express = require('express');
-const cors = require('cors');
 const admin = require('firebase-admin');
 
 const app = express();
-app.use(cors()); // Allow frontend to access backend
 app.use(express.json());
 
-// Initialize Firebase
-const serviceAccount = require('./path/to/your/firebase-private-key.json');
+// Initialize Firebase using Environment Variables
 admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount)
+  credential: admin.credential.cert({
+    type: "service_account",
+    project_id: process.env.FIREBASE_PROJECT_ID,
+    private_key: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'),
+    client_email: process.env.FIREBASE_CLIENT_EMAIL,
+  }),
 });
 
 const db = admin.firestore();
 
-// API to fetch MSP Data
-app.get('/', async (req, res) => {
-    try {
-        const collectionRef = db.collection('flower_msp');
-        const snapshot = await collectionRef.get();
-        
-        let data = {};
-        snapshot.forEach(doc => {
-            data[doc.id] = doc.data();
-        });
-
-        res.json(data);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
+// ✅ API Route - Check Server Status
+app.get("/", (req, res) => {
+  res.send("MSP Backend is Running!");
 });
 
-const PORT = process.env.PORT || 3000;
+// ✅ API Route - Fetch Data from Firestore
+app.get("/", async (req, res) => {
+  try {
+    const snapshot = await db.collection("msp_data").get();
+    let data = [];
+    
+    snapshot.forEach(doc => {
+      data.push({ id: doc.id, ...doc.data() });
+    });
+
+    res.json(data);
+  } catch (error) {
+    console.error("Error fetching data:", error);
+    res.status(500).json({ error: "Failed to fetch data" });
+  }
+});
+
+const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+  console.log(Server running on port ${PORT});
 });
