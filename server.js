@@ -17,7 +17,7 @@ app.use(cors());
 app.use(express.json()); // To parse JSON data
 
 // API to fetch data from Firestore
-app.get("/msp-data", async (req, res) => {
+app.get("/", async (req, res) => {
     try {
         const snapshot = await db.collection("msp").get();
         
